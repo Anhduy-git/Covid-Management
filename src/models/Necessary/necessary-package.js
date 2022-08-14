@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const {BadRequestError} = require('../../errors');
+const Necessary = require('./necessary');
 
 const necessaryPackageSchema = new mongoose.Schema({       
     name: {
@@ -12,7 +13,12 @@ const necessaryPackageSchema = new mongoose.Schema({
         type: [{
             necessary: {
                 type: mongoose.Schema.Types.ObjectId,           
+                required: true,
                 ref: 'Necessary'
+            },
+            quantity: {
+                type: Number,
+                default: 1
             }
         }],
         validate(value){
@@ -34,9 +40,27 @@ const necessaryPackageSchema = new mongoose.Schema({
     limitTime: {
         type: Number, 
         required: true
+    },
+    totalPrice: {
+        type: Number,
+        default: 0
     }
     
 });
+
+necessaryPackageSchema.pre('save', async function(next) {
+    var totalPrice = 0
+    for (item of this.necessaries) {
+        const necessary = await Necessary.findById(item.necessary);
+        totalPrice += (necessary.price * item.quantity);
+    }
+    this.totalPrice = totalPrice;        
+
+    next(); //go to save the package
+})
+
 const NecessaryPackage = mongoose.model('NecessaryPackage', necessaryPackageSchema);
+
+
 
 module.exports = NecessaryPackage;

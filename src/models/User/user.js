@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {BadRequestError, UnauthorizedError} = require('../../errors');
+
 require('dotenv').config();
 
 const userSchema = new mongoose.Schema({       
@@ -33,22 +34,32 @@ const userSchema = new mongoose.Schema({
         enum:['F0', 'F1', 'F2', 'F3']
     },
     placeOfTreatment: {
-        type: String,        
-        trim: true,
+        type: String,  
+        trim: true,      
         required: true
     },
     relatedUsers: [{
         relatedUser: {
-            type: mongoose.Schema.Types.ObjectId,     
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }
-    }],
-    treatmentProcesses: [{
-        treatmentProcess: {
-            type: String,            
-            trim: true,            
-        }
-    }],
+    }],    
+    debt: {
+        type: Number,
+        default: 0
+    },
+    managedProcesses: {
+        type: [{
+            date: {
+                type: Date,
+                default: Date.now
+            },
+            activity: {
+                type: String,
+                required: true
+            }
+        }]
+    },
     username: {
         type: String,
         required: true,
@@ -109,15 +120,15 @@ userSchema.methods.generateAuthToken = async function() {
     return token;
 }
 
-userSchema.statics.findByCredentials = async(email, password) => {
-    const user = await User.findOne({email});
+userSchema.statics.findByCredentials = async(username, password) => {
+    const user = await User.findOne({username});
     if (!user) {
-        throw new UnauthorizedError('Unable to login');
+        return null;
     }
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        throw new UnauthorizedError('Unable to login');
+        throw new UnauthorizedError('Authentication failed');
     } 
     return user;
 }

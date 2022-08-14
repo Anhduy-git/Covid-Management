@@ -1,5 +1,6 @@
 const express = require('express');
 const connectDB = require('./db/db-connect');
+const initializeDB = require('./db/db-initialize');
 const {InternalServerError} = require('./errors');
 require('dotenv').config();
 //auto catch async errors
@@ -8,10 +9,12 @@ require('express-async-errors');
 const userManagerRouter = require('./routers/User/user-manager');
 const userRouter = require('./routers/User/user');
 const treatmentPlaceRouter = require('./routers/TreatmentPlace/treatment-place');
+const addressRouter = require('./routers/Address/address');
 const necessaryRouter = require('./routers/Necessary/necessary');
 const necessaryPackageRouter = require('./routers/Necessary/necessary-package');
 
 const errorHandlerMiddleware = require('./middlewares/error-handler');
+
 
 const app = express();
 
@@ -19,10 +22,14 @@ const app = express();
 //parse req.body to js object
 app.use(express.json()); 
 
+//initialize database (addresses, places of treament,..)
+initializeDB();
+
 //routers
 app.use('/managers', userManagerRouter); 
 app.use('/users', userRouter);
 app.use('/treatmentPlaces', treatmentPlaceRouter);
+app.use('/addresses', addressRouter);
 app.use('/necessaries', necessaryRouter);
 app.use('/necessaryPackages', necessaryPackageRouter);
 

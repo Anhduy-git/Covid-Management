@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const {BadRequestError, UnauthorizedError} = require('../../errors');
 require('dotenv').config();
 
 const userManagerSchema = new mongoose.Schema({      
     isAdmin: {
-        type: Boolean,
-        required: true
+        type: Boolean,        
+        default: false
     },   
     username: {
         type: String,
@@ -37,7 +38,11 @@ const userManagerSchema = new mongoose.Schema({
             type: String,
             required: true
         }
-    }]
+    }],
+    isBlock: {
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true
 });
@@ -62,15 +67,15 @@ userManagerSchema.methods.generateAuthToken = async function() {
     return token;
 }
 
-userManagerSchema.statics.findByCredentials = async(email, password) => {
-    const user = await User.findOne({email});
+userManagerSchema.statics.findByCredentials = async(username, password) => {
+    const user = await UserManager.findOne({username});
     if (!user) {
-        throw new Error('Unable to login');
+        return null;
     }
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        throw new Error('Unable to login');
+        throw new UnauthorizedError('Authentication failed');
     } 
     return user;
 }

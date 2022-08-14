@@ -1,6 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const multer = require('multer');
+const auth = require('../../middlewares/authentication');
 const {
     createNecessary, 
     getNecessaryList, 
@@ -10,11 +11,11 @@ const {
     uploadNecessaryImages
 } = require('../../controllers/Necessary/necessary')
 
-router.post('/create', createNecessary);
-router.get('/get', getNecessaryList);
-router.get('/get/:name', getNecessaryByName);
-router.patch('/update/:name', updateNecessary);
-router.delete('/delete/:name', deleteNecessaryByName);
+router.post('/create', auth, createNecessary);
+router.get('/getAll', auth, getNecessaryList);
+router.get('/:name/get', auth, getNecessaryByName);
+router.patch('/:name/update', auth, updateNecessary);
+router.delete('/:name/delete', auth, deleteNecessaryByName);
 
 
 //image upload
@@ -29,6 +30,6 @@ const upload = multer({
         cb(undefined, true); //accept file        
     }
 });
-router.post('/uploadImages/:name', upload.any('images'), uploadNecessaryImages);
+router.post('/uploadImages/:name', auth, upload.any('images'), uploadNecessaryImages);
 
 module.exports = router;
