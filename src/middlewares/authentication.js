@@ -4,6 +4,7 @@ const UserManager = require('../models/User/user-manager');
 const {BadRequestError, UnauthorizedError} = require('../errors');
 require('dotenv').config();
 
+
 const auth = async(req, res, next) => {
     try {
         const token = req.header('Authorization').replace('Bearer ', '');
@@ -36,7 +37,7 @@ const auth = async(req, res, next) => {
         req.token = token;        
         next();
     } catch(err) {
-        throw new UnauthorizedError("Invalid authentication")
+        next(err);
     }
 }
 module.exports = auth;

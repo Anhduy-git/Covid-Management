@@ -1,7 +1,7 @@
 const express = require('express');
 const router = new express.Router();
-const {getAddressList} = require('../../controllers/Address/address')
+const addressController = require('../../controllers/Address/address')
 
-router.get('/getAll', getAddressList);
+router.get('/getAll', addressController.getAddressList);
 
 module.exports = router;

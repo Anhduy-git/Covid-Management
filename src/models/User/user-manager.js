@@ -23,8 +23,7 @@ const userManagerSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
-        minlength: 5,
+        default: '',        
         trim: true,
         validate(value) {
             if (value.toLowerCase().includes('password')) {
@@ -43,8 +42,6 @@ const userManagerSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
-}, {
-    timestamps: true
 });
 
 //override toJSON method, call with res.send a user
@@ -67,17 +64,10 @@ userManagerSchema.methods.generateAuthToken = async function() {
     return token;
 }
 
-userManagerSchema.statics.findByCredentials = async(username, password) => {
-    const user = await UserManager.findOne({username});
-    if (!user) {
-        return null;
-    }
+userManagerSchema.statics.checkCredentials = async(user, password) => {
+        
     const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-        throw new UnauthorizedError('Authentication failed');
-    } 
-    return user;
+    return isMatch;
 }
 
 

@@ -1,5 +1,6 @@
 const Address = require('../models/Address/address');
 const TreatmentPlace = require('../models/TreatmentPlace/treatment-place');
+const {StatusCodes} = require('http-status-codes');
 
 const addresses = [
     {
@@ -99,18 +100,21 @@ const treatmentPlaces = [
 ]
 
 const initializeDB = async() => {
-    //initialize addresses 
-    let addressList = await Address.find({});
-    if (addressList.length == 0) {
-        await Address.insertMany(addresses);
-    }    
-    //initialize places of treatment
-    let treatmentPlaceList = await TreatmentPlace.find({});
-    if (treatmentPlaceList.length == 0) {
-        await TreatmentPlace.insertMany(treatmentPlaces);
+    try {        
+        //initialize addresses 
+        let addressList = await Address.find({});
+        if (addressList.length == 0) {
+            await Address.insertMany(addresses);
+        }    
+        //initialize places of treatment
+        let treatmentPlaceList = await TreatmentPlace.find({});
+        if (treatmentPlaceList.length == 0) {
+            await TreatmentPlace.insertMany(treatmentPlaces);
+        }        
+        console.log("Data has been initialized!");        
+    } catch(err) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ msg: "Internal Server Error" });
     }
-    
-    console.log("Data has been initialized!");
 };
 
 module.exports = initializeDB;

@@ -1,10 +1,10 @@
 const express = require('express');
 const router = new express.Router();
-const {createTreatmentPlace, getTreatmentPlaceList, updateTreatmentPlace} = require('../../controllers/TreatmentPlace/treatment-place')
+const treatmentPlaceController = require('../../controllers/TreatmentPlace/treatment-place')
 const auth = require('../../middlewares/authentication');
 
-router.post('/create', auth, createTreatmentPlace);
-router.get('/getAll', getTreatmentPlaceList);
-router.patch('/:name/update', auth, updateTreatmentPlace);
+router.post('/create', auth, treatmentPlaceController.createTreatmentPlace);
+router.get('/getAll', treatmentPlaceController.getTreatmentPlaceList);
+router.patch('/:name/update', auth, treatmentPlaceController.updateTreatmentPlace);
 
 module.exports = router;
