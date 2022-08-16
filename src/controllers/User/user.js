@@ -3,14 +3,29 @@ const UserManager = require('../../models/User/user-manager');
 const TreatmentPlace = require('../../models/TreatmentPlace/treatment-place');
 const {StatusCodes} = require('http-status-codes');
 const {NotFoundError, BadRequestError, UnauthorizedError} = require('../../errors');
+const fetch = require('node-fetch');
 
 class UserController {
     //[POST] /users/create
     async createUser(req, res, next) {
         try {
             if (req.priority === 1) {
+                //create new user
                 const user = new User(req.body);
-                await user.save();                
+                await user.save();
+                //create new user in payment system
+                const username = req.body.username;                
+                const url = "http://localhost:3001/users/create";
+                const options = {
+                    "method": "POST",
+                    "body": JSON.stringify({username}),
+                    "headers": {
+                        "Content-Type": "application/json",
+                    }
+                };
+                //fetch API from payment system
+                await fetch(url, options);
+                
                 res.status(StatusCodes.CREATED).json(user);   
             } else {
                 next(new UnauthorizedError('You are not manager'));
@@ -37,12 +52,12 @@ class UserController {
         }
     }
 
-    //[GET] /users/:identityCard/get
-    async getUserByIdentity(req, res, next) {
+    //[GET] /users/:username/get
+    async getUserByUsername(req, res, next) {
         try {
             if (req.priority === 1) {
-                const identityCard = req.params.identityCard;       
-                const user = await User.findOne({identityCard});
+                const username = req.params.username;       
+                const user = await User.findOne({username});
                 if (!user) {
                     throw new NotFoundError("User not found");
                 }
@@ -72,22 +87,48 @@ class UserController {
     async payOffDebt(req, res, next) {
         try {
             if (req.priority === 2) {
-                //remaining balance in user account (on payment service)
-                var remainingBalance = 300;
+                const username = req.user.username;        
+                //get remaining balance of current user in payment system
+                const urlGetRemainingBalance = `http://localhost:3001/users/${username}/getRemainingBalance`;
+                const optionsGetRemainingBalance = {
+                    "method": "GET",                
+                };
+                
+                //fetch API from payment system
+                var {remainingBalance} = await fetch(urlGetRemainingBalance, optionsGetRemainingBalance).then((res) => res.json());                
                 //Minimum amount to pay off each time
-                const minimumPayment = req.user.debt * 0.05;        
+                const minimumPayment = req.user.debt * 0.05;     
+
+                var moneyTransfer = req.body.moneyTransfer;    
+                
                 //payoff debt
-                if (remainingBalance >= minimumPayment) {
-                    if (remainingBalance >= req.user.debt) {
-                        remainingBalance -= req.user.debt;                
-                        req.user.debt = 0;
+                if (moneyTransfer <= remainingBalance) {
+                    if (moneyTransfer >= minimumPayment) {
+                        if (moneyTransfer >= req.user.debt) {
+                            moneyTransfer = req.user.debt;                
+                            req.user.debt = 0;
+                        } else {
+                            req.user.debt -= moneyTransfer;                                          
+                        }                           
+                        console.log(moneyTransfer);
+                        //update remaining balance of current user in payment system
+                        const urlUpdateRemainingBalance = `http://localhost:3001/users/${username}/transferToAdmin`;
+                        const optionsUpdateRemainingBalance = {
+                            "method": "PATCH",
+                            "body": JSON.stringify({username, moneyTransfer}),
+                            "headers": {
+                                "Content-Type": "application/json",
+                            }            
+                        };
+                        //fetch API from payment system
+                        await fetch(urlUpdateRemainingBalance, optionsUpdateRemainingBalance);
+
                     } else {
-                        req.user.debt -= remainingBalance;
-                        remainingBalance = 0;                
-                    }
+                        throw new BadRequestError('The money transfer is less than minimum payment');
+                    }   
                 } else {
                     throw new BadRequestError('Not enough money in account');
-                }        
+                }  
                 await req.user.save();
                 res.status(StatusCodes.CREATED).json(req.user);   
             } else {
@@ -98,8 +139,8 @@ class UserController {
         }
     };
 
-    //[PATCH] /users/:identityCard/update
-    async updateUserByIdentity(req, res, next) {
+    //[PATCH] /users/:username/update
+    async updateUserByUsername(req, res, next) {
         try {
             if (req.priority === 1) {
                 const updates = Object.keys(req.body);
@@ -110,8 +151,8 @@ class UserController {
                     throw new BadRequestError("Invalid update operation")
                 }
         
-                const identityCard = req.params.identityCard; 
-                const user = await User.findOne({identityCard})                
+                const username = req.params.username; 
+                const user = await User.findOne({username})                
                 if (!user) {
                     throw new NotFoundError("User not found");
                 }
@@ -151,6 +192,34 @@ class UserController {
                 
                 await user.save();
         
+                res.status(StatusCodes.OK).json(user);
+            } else {
+                throw new UnauthorizedError('You are not manager');
+            }
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    //[DELETE] /users/:username/delete
+    async deleteUserByUsername(req, res, next) {
+        try {
+            if (req.priority === 1) {
+                const username = req.params.username;
+                const user = await User.findOne({username});
+                if (!user) {
+                    throw new NotFoundError("User not found");
+                }                
+                //delete user
+                await User.deleteOne({username});   
+                //delete user in payment system
+                const url = `http://localhost:3001/users/${username}/delete`;
+                const options = {
+                    "method": "DELETE"
+                };
+                //fetch API from payment system
+                await fetch(url, options);  
+                             
                 res.status(StatusCodes.OK).json(user);
             } else {
                 throw new UnauthorizedError('You are not manager');
@@ -233,6 +302,17 @@ class UserController {
             next(err);
         }
     }
+
+    //[PATCH] /users/updatePassword
+    async updatePassword(req, res, next) {
+        try {                         
+            req.user.password = req.body.password;
+            await req.user.save();
+            res.status(StatusCodes.OK).send();
+        } catch(err) {
+            next(err);
+        }
+    } 
 }
 
 

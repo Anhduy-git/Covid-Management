@@ -3,6 +3,7 @@ const connectDB = require('./db/db-connect');
 const initializeDB = require('./db/db-initialize');
 const errorHandlerMiddleware = require('./middlewares/error-handler');
 const route = require('./routers');
+const cors = require('cors');
 require('dotenv').config();
 
 
@@ -11,8 +12,13 @@ const app = express();
 //parse req.body to js object
 app.use(express.json()); 
 
+//CORS
+app.use(cors());
+
 //initialize database (addresses, places of treament,..)
 initializeDB();
+
+
 
 //init routers
 route(app);

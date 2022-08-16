@@ -97,6 +97,7 @@ class NecessaryPackageController {
     //[POST] /necessaryPackages/buy
     async buyNecessaryPackages(req, res, next) {
         try {
+  
             //update transaction history
             const necessaryPackages = req.body.necessaryPackages;
             const userId = req.user._id;
