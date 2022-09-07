@@ -1,15 +1,19 @@
 ## You are the  ![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FAnhduy-git%2FCovid-Management&countColor=%230096ff&style=flat) ! Thanks for your visit!
 
 
-# Covid Management website (Back-end)
+# Covid Management website
 
-Back-end of a covid manager website that help people to manage the list of people infected with covid in Vietnam.
+A covid manager website that help people to manage the list of people infected with covid in Vietnam.
 
 ## Contributors
 Here is our team, you can connect us through our Linkedin:
-- [Nguyen Tran Anh Duy (Back-end Developper)](https://www.linkedin.com/in/duy-nguyen-tran-anh/).
+- [Nguyen Tran Anh Duy (Full Stack Developper)](https://www.linkedin.com/in/duy-nguyen-tran-anh/).
 
 ## Tech Stack
+
+**Programming Language:** Javascript.
+
+**Front-end:** React.JS.
 
 **Back-end:** Node.JS, Express.JS.
 
@@ -20,6 +24,8 @@ Here is our team, you can connect us through our Linkedin:
 **Image Storage:** Cloudinary.
 
 **IDE Tool:** Visual Studio Code.
+
+**API Testing:** Postman.
 
 
 ## Features
