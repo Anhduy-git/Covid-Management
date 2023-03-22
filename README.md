@@ -41,4 +41,8 @@ Here is our team, you can connect us through our Linkedin:
 - Buy Necessary Packages (patients).
 - Linked to a payment system so that patients can top up their account.
 
+## Demo some features in frontend
+
+https://user-images.githubusercontent.com/84486806/199061718-9618659e-3a94-402c-bfe0-4a4c35bd5c6c.mp4
+
 
