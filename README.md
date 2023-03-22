@@ -9,7 +9,7 @@ A covid manager website that help people to manage the list of people infected w
 Here is our team, you can connect us through our Linkedin:
 - [Nguyen Tran Anh Duy (Full Stack Developper)](https://www.linkedin.com/in/duy-nguyen-tran-anh/).
 - [Cao Minh Quang (Front-end Developper)](https://www.linkedin.com/in/minh-quang-cao-5a3270257/).
-- [Ha Thi Thanh Tu (Front-end Developper / Designer)]().
+- [Ha Thi Thanh Tu (Front-end Developper / Designer)](https://www.linkedin.com/in/h%C3%A0-t%C3%BA-6bb44626b/?fbclid=IwAR0EMk8KJaN5sa03CXJJqB9zOX5Xki3Y3lUEDJQitBYtpyuLpkyaUyyOJjU).
 
 ## Tech Stack
 
